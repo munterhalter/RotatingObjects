@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Some standards-compliant boilerplate. Just ignore this -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!-- Next, we pull in the A-Frame library and some extra plugins -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@fb96ab2/dist/aframe-extras.min.js"></script>
+    <!-- Next, we have the title of our page-->
+    <title>A Basic A-Frame scene</title>
+  </head>
+
+  <body>
+    <script>
+      // To write debug messages to the console, use console.log():
+      /* You can see the results in the "console" of the preview window 
+      or, if you are viewing the result in a separate window, use your browser's developer's console. 
+      */
+      console.log("Hello, this is a test script");
+    </script>
+
+    <script>
+      /* A-Frame logic is stored in components and in systems.
+                Components are logic attached to an `<a-entity>` while systems are global and
+                are attached to a scene. Here we focus on defining a component
+
+                Documentation for writing components is found here:
+                https://aframe.io/docs/master/core/component.html
+                */
+      AFRAME.registerComponent("my-component", {
+        // A new instance of the component gets created for each <a-entity> the component is attached to
+
+        // The init function gets executed each time an instance of the component is created
+        init: function () {
+          // The given instance of the component can be accessed using the `this` variable
+          // for example: this.name refers to the string representation of the component name
+          console.log(
+            "Hello, " + this.name + " is being initialized on the element"
+          );
+          // this.el refers to the <a-entity> this component is attached to
+          console.log(this.el);
+          // The following code is responsible for calling the debugging function
+          // We do not want to call the debug routine too often because it would slow our rendering to a crawl
+          // You can avoid reading into this too deeply. Just know that this is responsinble for making sure that the function
+          // debug(t,dt) does not get called more than once every 1000 ms
+          this.debug = AFRAME.utils.throttle(this.debug, 1000, this);
+        },
+        debug: function (t, dt) {
+          // This debugging functions is NOT executed automatically
+          // It gets called from the "tick" function
+          console.log("This is a debugging function");
+        },
+        tick: function (t, dt) {
+          // This function (tick) gets called on each rendered frame
+          // t is the time in milliseconds since the start of the program
+          // dt is the time in milliseconds since the last rendered frame
+
+          /* the object3D property of the <a-entity> refers to the javascript object that contains information about the 3D shape
+      See
+      https://aframe.io/docs/master/core/entity.html#object3d
+      and
+      https://threejs.org/docs/#api/en/core/Object3D
+      for information of properties
+              */
+          this.el.object3D.rotation.x = t / 1000;
+          this.el.object3D.rotation.y = t / -1000; //setting this to -500 did weird things
+
+          // The following code is responsible for calling the debugging function
+          this.debug(t, dt);
+        }
+      });
+    </script>
+    <a-scene>
+      <a-entity id="rig" movement-controls position="0 0 0">
+        <a-entity
+          id="camera"
+          camera="fov:55"
+          position="0 1.6 0"
+          look-controls
+        ></a-entity>
+      </a-entity>
+
+      <!-- This is the floor and sky-->
+      <a-entity
+        id="floor"
+        geometry="primitive: plane; width: 20; height: 20"
+        material="color: #7BC8A4; side: double"
+        height="100"
+        width="100"
+        rotation="-90 00 00"
+      ></a-entity>
+
+      <a-sky id="sky" color="#1A0A2A"></a-sky>
+
+      <a-entity
+        id="box1"
+        geometry="primitive: box"
+        material="color: red"
+        position="1 0 -5"
+        rotation="0 0 0"
+        my-component
+      ></a-entity>
+
+      <!-- doesnt really make sense to move the sphere bc it doesnt look like anythign is moving
+      but when you do my component when things are nested in it, then THEY move too! -->
+      <a-entity
+        id="spherePurple"
+        geometry="primitive: sphere"
+        position="4 1 -5"
+        radius=".25"
+        material="color: purple"
+        my-component
+      >
+        <!-- nested sphere below. white revolves around purple-->
+        <a-entity
+          id="sphereWhite"
+          geometry="primitive: sphere"
+          position="1 2 0"
+          radius=".5"
+          material="color: white"
+        >
+          <!-- nested icosahedron. blue revolves around white revolves around purple-->
+          <a-entity
+            id="icosahedronBlue"
+            geometry="primitive: icosahedron"
+            position="1 2 0"
+            radius=".1"
+            material="color: green"
+            my-component
+          >
+          </a-entity>
+        </a-entity>
+      </a-entity>
+
+      <a-entity
+        id="dodecahedronGreen"
+        geometry="primitive: dodecahedron"
+        radius="2"
+        position="-3 2 -5"
+        material="color: green"
+        my-component
+      ></a-entity>
+
+      <!-- this will hopefully be a white icosahedron-->
+      <a-entity
+        id="icosahedronOrange"
+        geometry="primitive: icosahedron"
+        radius="3"
+        position="1 2 -5"
+        material="color: orange"
+        my-component
+      >
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
